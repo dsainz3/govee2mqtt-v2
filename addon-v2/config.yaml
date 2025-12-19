@@ -1,5 +1,5 @@
 name: Govee2MQTT v2 (Python)
-version: "0.1.14"
+version: "0.1.15"
 slug: govee2mqtt_v2
 description: Python Govee Platform API v2 to MQTT bridge
 arch:

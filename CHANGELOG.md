@@ -3,6 +3,10 @@
 All notable changes to the Python v2 implementation and HAOS add-on are
 documented here. This changelog is required to be updated for every change.
 
+## 0.1.15
+
+- Automated version bump.
+
 ## 0.1.14
 
 - Add hands-off GitHub Actions automation for syncing, version bumps, CI, releases, and GHCR images.
