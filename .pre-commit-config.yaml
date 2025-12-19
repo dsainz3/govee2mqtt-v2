@@ -1,0 +1,41 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.5.0
+    hooks:
+      - id: ruff
+        args: ["--fix"]
+      - id: ruff-format
+        args: ["--config", "python/pyproject.toml"]
+  - repo: https://github.com/psf/black
+    rev: 24.4.2
+    hooks:
+      - id: black
+        language_version: python3.11
+        args: ["--config", "python/pyproject.toml"]
+  - repo: local
+    hooks:
+      - id: sync-addon-v2
+        name: sync addon-v2 app from python sources
+        entry: python scripts/sync_addon_v2.py
+        language: system
+        pass_filenames: false
+        stages: ["manual"]
+      - id: bump-version
+        name: bump version + changelog
+        entry: python scripts/bump_version.py
+        language: system
+        pass_filenames: false
+        stages: ["manual"]
+      - id: check-changelog
+        name: check changelog
+        entry: python scripts/check_changelog.py
+        language: system
+        pass_filenames: false
+        stages: ["manual"]

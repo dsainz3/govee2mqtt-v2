@@ -1,0 +1,84 @@
+name: Release
+
+on:
+  push:
+    branches: ["main"]
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read version
+        id: version
+        run: |
+          VERSION=$(python - <<'PY'
+          import tomllib
+          from pathlib import Path
+          data = tomllib.loads(Path("python/pyproject.toml").read_text(encoding="utf-8"))
+          print(data["tool"]["poetry"]["version"])
+          PY
+          )
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Check tag
+        id: tagcheck
+        run: |
+          TAG="v${{ steps.version.outputs.version }}"
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create tag
+        if: steps.tagcheck.outputs.exists == 'false'
+        run: |
+          TAG="v${{ steps.version.outputs.version }}"
+          git tag "$TAG"
+          git push origin "$TAG"
+
+      - name: Create GitHub Release
+        if: steps.tagcheck.outputs.exists == 'false'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          generate_release_notes: true
+
+      - name: Log in to GHCR
+        if: steps.tagcheck.outputs.exists == 'false'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push python image
+        if: steps.tagcheck.outputs.exists == 'false'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: python/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/govee2mqtt-v2:${{ steps.version.outputs.version }}
+            ghcr.io/${{ github.repository_owner }}/govee2mqtt-v2:latest
+
+      - name: Build and push addon image
+        if: steps.tagcheck.outputs.exists == 'false'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: addon-v2/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/govee2mqtt-v2-addon:${{ steps.version.outputs.version }}
+            ghcr.io/${{ github.repository_owner }}/govee2mqtt-v2-addon:latest
