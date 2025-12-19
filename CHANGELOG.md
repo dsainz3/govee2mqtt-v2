@@ -12,6 +12,10 @@ documented here. This changelog is required to be updated for every change.
 - Add hands-off GitHub Actions automation for syncing, version bumps, CI, releases, and GHCR images.
 - Add local automation scripts and set pre-commit automation hooks to manual stage.
 
+## 0.1.15
+
+- Trigger CI/automation run.
+
 ## 0.1.12
 
 - Set `object_id` for capability entities so entity IDs include `cap_<instance>` for easy search.
