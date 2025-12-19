@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "govee2mqtt-v2"
-version = "0.1.14"
+version = "0.1.15"
 description = "Govee Platform API v2 to MQTT bridge for Home Assistant"
 authors = ["Diego Sainz <dsainz3@gmail.com>"]
 readme = "README.md"
